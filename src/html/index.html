@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LETMEIN SERVICE</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="flex-row">
+        <div class="side flex-col">
+            <img class="logo" src="../img/logo.png" />
+
+            <div class="flex-row">
+                <button id="gateway-operation-all" class="operation-button" data-status="">
+                    <img class="icon-button" src="../img/icon/stop.png" />
+                </button>
+                <p class="inline-flex">Stop All Service</p>
+            </div>
+
+            <div class="flex-row">
+                <button id="gateway-operation-all" class="operation-button" data-status="">
+                    <img class="icon-button" src="../img/icon/restart.png" />
+                </button>
+                <p class="inline-flex">Restart All Service</p>
+            </div>
+        </div>
+        <dvi class="main">
+            <div class="pb-20">
+                <button class="button-download flex-row"><img class="icon-button" src="../img/icon/download_arrow.png" /><p>Download Log</p></button>
+            </div>
+            <table>
+                <tr>
+                    <th>Service Name</th>
+                    <th class="width-120">Status</th>
+                    <th><center>Operation</center></th>
+                  </tr>
+                  <tr>
+                    <td>Letmein Gateway Service</td>
+                    <td id="gateway-status" class="flex-row">Start</td>
+                    <td>
+                        <center><button id="gateway-operation" class="operation-button" data-status=""><img class="icon-button" src="../img/icon/stop.png" /></button></center>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Subscription LPR</td>
+                    <td id="lpr-status" class="flex-row">Yes</td>
+                    <td>
+                        <center><button id="lpr-operation" class="operation-button" data-status=""><img class="icon-button" src="../img/icon/stop.png" /></button></center>
+                    </td>
+                  </tr>
+            </table>
+        </dvi>
+    </div>
+</body>
+</html>

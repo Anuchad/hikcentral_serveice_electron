@@ -1,0 +1,24 @@
+{
+  "name": "hikcentral_serveice_electron",
+  "version": "1.0.0",
+  "description": "service hikcentral by electron",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ./src/main.js",
+    "nodemon": "nodemon --exec electron ./src/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.1.0"
+  },
+  "dependencies": {
+    "celebrate": "^15.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.4",
+    "winston": "^3.13.0"
+  }
+}

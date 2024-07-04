@@ -17,7 +17,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   const updateStatus = (selector, text) => {
     const element = document.getElementById(selector);
     if (element) {
-      element.innerHTML = `<img class="icon-status" src="../img/icon/loading.png" /> <p class="flex-item-right">Starting...</p>`;
+      element.innerHTML = `<img class="icon-status" src="../img/icon/loading.png" /> <p class="flex-item-right">Starting...${process.env.PORT}</p>`;
       setTimeout(() => {
         element.innerHTML = text;
       }, 500);
@@ -55,7 +55,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   const iconStatus = (status) => {
     var htmlStatus;
     if (status) {
-      htmlStatus = `<img class="icon-status" src="../img/icon/correct.png" /> <p class="flex-item-right">Started</p>`;
+      htmlStatus = `<img class="icon-status" src="../img/icon/correct.png" /> <p class="flex-item-right">Started ${process.env.DOMAIN}</p>`;
     } else {
       htmlStatus = `<img class="icon-status" src="../img/icon/incorrect.png" /> <p class="flex-item-right">Stopped</p>`;
     }

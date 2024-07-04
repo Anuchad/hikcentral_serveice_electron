@@ -1,20 +1,23 @@
 const { spawn } = require("child_process");
-
+const { logService } = require('./logging')
 let serverProcess;
-
+const path = require("node:path");
 function startServer() {
   // รัน Express server
-  serverProcess = spawn("node", ["./src/service/index.js"]);
+  serverProcess = spawn("node", [path.join(__dirname, '../service/index.js')]);
 
-  // serverProcess.stdout.on("data", (data) => {
-  //   console.log(`stdout: ${data}`);
-  // });
+  serverProcess.stdout.on("data", (data) => {
+    logService(`stdout: ${data}`)
+    console.log(`stdout: ${data}`);
+  });
 
-  // serverProcess.stderr.on("data", (data) => {
-  //   console.error(`stderr: ${data}`);
-  // });
+  serverProcess.stderr.on("data", (data) => {
+    logService(`stderr: ${data}`)
+    console.error(`stderr: ${data}`);
+  });
 
   serverProcess.on("close", (code) => {
+    logService(`Express server exited with code ${code}`)
     console.log(`Express server exited with code ${code}`);
   });
 }

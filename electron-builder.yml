@@ -1,0 +1,14 @@
+appId: LETMEIN SERVICE
+win: 
+  target: 
+    - nsis
+  icon: icon.ico
+  requestedExecutionLevel: requireAdministrator
+nsis:
+  installerIcon: icon.ico
+  uninstallerIcon: icon.ico
+  uninstallDisplayName: LETMEIN SERVICE
+  license: LICENSE
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true

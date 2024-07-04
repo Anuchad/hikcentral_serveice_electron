@@ -1,5 +1,6 @@
 const express = require("express");
 // config env
+// require("dotenv").config();
 const app = express();
 
 require("./routes")(app);

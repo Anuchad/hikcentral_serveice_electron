@@ -1,24 +1,43 @@
 const express = require("express");
-// config env
-// require("dotenv").config();
 const app = express();
+const { logService } = require("../middlewares/logging");
 
 require("./routes")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || process.env.port;
-var server = app.listen(PORT, () => {
-  console.log(`Server ${process.env.name} is running on port ${PORT}.`);
-});
-server.timeout = 1000 * 60 * 30;
+const PORT = process.env.PORT;
+let server;
 
-// เพื่อให้สามารถรีสตาร์ทได้ เราจะต้องจัดการกับ shutdown
-function shutdown() {
+function startServer() {
+  server = app.listen(PORT, () => {
+    const message = `Server ${process.env.name} is running on port ${PORT}.`;
+    logService(message);
+  });
+  server.timeout = 1000 * 60 * 30;
+}
+
+function stopServer() {
   server.close(() => {
-    console.log("Express server closed.");
-    process.exit(0);
+    const message = `Server is stopped ${process.env.TOKEN}`;
+    logService(message);
   });
 }
 
-// process.on("SIGTERM", shutdown);
-// process.on("SIGINT", shutdown);
+async function restartServer() {
+  console.log("Server is restarted");
+  logService("Server is restarted");
+  await stopServer();
+  await startServer();
+}
+
+function checkServerRunning() {
+  logService("Check Service Running....");
+  return server && !server.writableFinished;
+}
+
+module.exports = {
+  startServer,
+  stopServer,
+  restartServer,
+  checkServerRunning,
+};

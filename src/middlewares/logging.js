@@ -1,9 +1,4 @@
 const { createLogger, format, transports } = require("winston");
-// const fs = require('fs');
-// const path = require('path');
-// const logDir = 'log';
-
-// const filename = path.join(logDir, 'results.log');
 
 //logging
 const logger = createLogger({
@@ -81,6 +76,38 @@ function logResponseBody(req, res, next) {
   next();
 }
 
+const loggerService = createLogger({
+  level: "debug",
+  format: format.combine(
+    format.colorize(),
+    format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+  ),
+  transports: [
+    new transports.Console(),
+    new transports.File({
+      filename: "./src/log/service.log",
+      handleExceptions: true,
+      json: false,
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+    // new transports.Http({
+    //   host: 'localhost',
+    //   port: 3000,
+    // }),
+  ],
+});
+
+function logService(data) {
+  loggerService.info(`****** Start process ******`);
+  loggerService.info(data);
+  loggerService.info(`****** End process ****** \n`);
+}
+
 module.exports = {
   logResponseBody,
+  logService,
 };

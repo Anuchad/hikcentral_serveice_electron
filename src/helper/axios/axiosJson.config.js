@@ -7,11 +7,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.headers = prepareConfigRequestToHCPAPI(
+    const sign = prepareConfigRequestToHCPAPI(
       process.env.APP_KEY,
       process.env.SECRET_KEY,
       config.url
     );
+    config.headers = sign.headers;
+    config.httpsAgent = sign.httpsAgent;
     return config;
   },
   (error) => {

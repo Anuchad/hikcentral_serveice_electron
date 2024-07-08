@@ -27,7 +27,7 @@
         </div>
         <dvi class="main">
             <div class="pb-20">
-                <button class="button-download flex-row"><img class="icon-button" src="../img/icon/download_arrow.png" /><p>Download Log</p></button>
+                <button id="dowload-log" class="button-download flex-row"><img class="icon-button" src="../img/icon/download_arrow.png" /><p>Download Log</p></button>
             </div>
             <table>
                 <tr>
@@ -37,16 +37,16 @@
                   </tr>
                   <tr>
                     <td>Letmein Gateway Service</td>
-                    <td id="gateway-status" class="flex-row">Start</td>
+                    <td id="gateway-status" class="flex-row">Stop</td>
                     <td>
-                        <center><button id="gateway-operation" class="operation-button" data-status=""><img class="icon-button" src="../img/icon/stop.png" /></button></center>
+                        <center><button id="gateway-operation" class="operation-button" data-status="stop"><img class="icon-button" src="../img/icon/stop.png" /></button></center>
                     </td>
                   </tr>
                   <tr>
                     <td>Subscription LPR</td>
-                    <td id="lpr-status" class="flex-row">Yes</td>
+                    <td id="lpr-status" class="flex-row">Stop</td>
                     <td>
-                        <center><button id="lpr-operation" class="operation-button" data-status=""><img class="icon-button" src="../img/icon/stop.png" /></button></center>
+                        <center><button id="lpr-operation" class="operation-button" data-status="stop"><img class="icon-button" src="../img/icon/stop.png" /></button></center>
                     </td>
                   </tr>
             </table>

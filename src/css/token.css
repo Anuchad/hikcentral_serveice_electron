@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+    background: #ffffff;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+input {
+    width: 60%;
+    padding: 10px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+button {
+    background-color: limegreen;
+    width: 20%;
+    padding: 10px;
+    border: 0px;
+    border-radius: 10px;
+    cursor: pointer;
+}

@@ -1,87 +1,21 @@
 const { ipcRenderer } = require("electron");
 
-function checkServer() {
-  ipcRenderer.send("check-server");
-}
-
-function stopServer() {
-  ipcRenderer.send("stop-server");
-}
-
-function restartServer() {
-  ipcRenderer.send("restart-server");
-}
+const statusStarted = `<img class="icon-status" src="../img/icon/correct.png" /> <p class="flex-item-right">Started</p>`;
+const statusStopped = `<img class="icon-status" src="../img/icon/incorrect.png" /> <p class="flex-item-right">Stopped</p>`;
+const statusStarting = `<img class="icon-status" src="../img/icon/loading.png" /> <p class="flex-item-right">Starting...</p>`;
+const statusStopping = `<img class="icon-status" src="../img/icon/loading.png" /> <p class="flex-item-right">Stopping...</p>`;
 
 window.addEventListener("DOMContentLoaded", async () => {
-  // Update status all service
-  const updateStatus = (selector, text) => {
-    const element = document.getElementById(selector);
-    if (element) {
-      element.innerHTML = `<img class="icon-status" src="../img/icon/loading.png" /> <p class="flex-item-right">Starting...</p>`;
-      setTimeout(() => {
-        element.innerHTML = text;
-      }, 500);
-    }
-  };
-
-  const updateOperation = (selector, obj) => {
-    const element = document.getElementById(selector);
-    if (element) {
-      setTimeout(() => {
-        element.innerHTML = obj.html;
-        element.setAttribute("data-status", obj.status);
-      }, 500);
-    }
-  };
-
-  const iconOperation = (type, operation) => {
-    let htmlButton;
-    console.log("operation : ", operation);
-    if (operation) {
-      htmlButton = {
-        html: `<center><button id="${type}" class="operation-button" data-status="stop"><img class="icon-button" src="../img/icon/stop.png" /></button></center>`,
-        status: "stop",
-      };
-    } else {
-      htmlButton = {
-        html: `<center><button id="${type}" class="operation-button" data-status="restart"><img class="icon-button" src="../img/icon/restart.png" /></button></center>`,
-        status: "restart",
-      };
-    }
-
-    return htmlButton;
-  };
-
-  const iconStatus = (status) => {
-    var htmlStatus;
-    if (status) {
-      htmlStatus = `<img class="icon-status" src="../img/icon/correct.png" /> <p class="flex-item-right">Started</p>`;
-    } else {
-      htmlStatus = `<img class="icon-status" src="../img/icon/incorrect.png" /> <p class="flex-item-right">Stopped</p>`;
-    }
-
-    return htmlStatus;
-  };
-
   for (const type of ["gateway", "lpr"]) {
+    let isRunning;
     if (type === "gateway") {
-      var dataStatus, dataOperation;
-      const isRunning = await ipcRenderer.invoke("check-server-status");
-
-      if (isRunning) {
-        dataStatus = iconStatus(isRunning);
-        dataOperation = iconOperation(isRunning);
-      } else {
-        dataStatus = iconStatus(isRunning);
-        dataOperation = iconOperation(isRunning);
-      }
+      isRunning = await ipcCheckServer();
+      console.log("isRunning : ", isRunning);
     } else if (type === "lpr") {
-      dataStatus = iconStatus(false);
-      dataOperation = iconOperation(false);
     }
 
-    updateStatus(`${type}-status`, dataStatus);
-    updateOperation(`${type}-operation`, dataOperation);
+    setStatus(`${type}-status`, isRunning);
+    setOperation(`${type}-operation`, isRunning);
   }
 
   //Action Button gateway-operation
@@ -89,14 +23,73 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   gatewayOperation.addEventListener("click", () => {
     const status = gatewayOperation.getAttribute("data-status");
-    const statusBool = status === "stop" ? false : true;
-    if (status === "stop") {
-      stopServer();
-    } else if (status === "restart") {
-      restartServer();
-    }
+    console.log("data-status : ", status);
 
-    updateStatus(`gateway-status`, iconStatus(statusBool));
-    updateOperation(`gateway-operation`, iconOperation("gateway", statusBool));
+    if (status === "stop") {
+      ipcStopServer();
+      setStatus("gateway-status", false);
+      setOperation("gateway-operation", false);
+    } else if (status === "restart") {
+      ipcRestartServer();
+      setStatus("gateway-status", true);
+      setOperation("gateway-operation", true);
+    }
+  });
+
+  document.getElementById("dowload-log").addEventListener("click", async () => {
+    const file = await ipcRenderer.invoke("open-dialog");
+
+    if (!file.canceled) {
+      await ipcRenderer.invoke("dowload-log", file.filePaths[0]);
+    }
   });
 });
+
+//function for update status
+function setStatus(id, status) {
+  let statusNow, statusWait;
+  if (status) {
+    statusNow = statusStarted;
+    statusWait = statusStarting;
+  } else {
+    statusNow = statusStopped;
+    statusWait = statusStopping;
+  }
+
+  const txtStatus = document.getElementById(id);
+  txtStatus.innerHTML = statusWait;
+  setTimeout(() => {
+    txtStatus.innerHTML = statusNow;
+  }, 500);
+}
+
+function setOperation(id, status) {
+  let operation, action;
+  if (status) {
+    operation = `<center><button id="${id}" class="operation-button" data-status="stop"><img class="icon-button" src="../img/icon/stop.png" /></button></center>`;
+    action = "stop";
+  } else {
+    operation = `<center><button id="${id}" class="operation-button" data-status="restart"><img class="icon-button" src="../img/icon/restart.png" /></button></center>`;
+    action = "restart";
+  }
+
+  const txtStatus = document.getElementById(id);
+  setTimeout(() => {
+    txtStatus.innerHTML = operation;
+    txtStatus.setAttribute("data-status", action);
+  }, 500);
+}
+
+//ipc for action service api
+async function ipcCheckServer() {
+  const status = await ipcRenderer.invoke("check-server-status");
+  return status;
+}
+
+function ipcStopServer() {
+  ipcRenderer.send("stop-server");
+}
+
+function ipcRestartServer() {
+  ipcRenderer.send("restart-server");
+}

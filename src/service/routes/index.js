@@ -1,10 +1,12 @@
 module.exports = (app) => {
   var express = require("express");
   const cors = require("cors");
-  const logging = require("../../middlewares/logging");
+  const { errors } = require("celebrate");
   const { consumerMessage } = require("../../helper/mqtt/mqtt.controller");
+  const logging = require("../../middlewares/logging");
 
-  const accessRoute = require("./access.route");
+  const accessRoute = require("./v1/access.route");
+  const personRoute = require("./v1/person.route");
 
   //cross site
   app.use(cors());
@@ -12,7 +14,11 @@ module.exports = (app) => {
   app.use(express.urlencoded({ limit: "80mb", extended: true }));
   app.use(express.raw());
   app.use(express.json({ limit: "80mb", extended: true }));
-  app.use("/api/v1", accessRoute);
+
+  app.use("/api/v1/access", accessRoute);
+  app.use("/api/v1", personRoute);
+
+  app.use(errors());
 
   app.get("/", (req, res) => {
     res.send("server running");

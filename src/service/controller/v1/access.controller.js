@@ -1,4 +1,6 @@
-const { axiosInstance } = require("../../helper/axios/axiosJson.config");
+const {
+  axiosInstance,
+} = require("../../../helper/axios/axiosHikcentral.config");
 
 async function checkStatusSubscribeLpr(req, res, next) {
   const data = await axiosInstance.post(
@@ -14,7 +16,7 @@ async function subscribeLpr(req, res, next) {
     "/artemis/api/eventService/v1/eventSubscriptionByEventType",
     {
       eventTypes: [131622],
-      eventDest: `http://${process.env.IP_LPR}:${porcess.env.PORT_LPR}/eventRcv`,
+      eventDest: `http://${process.env.IP_LPR}:${process.env.PORT_LPR}/eventRcv`,
     }
   );
 

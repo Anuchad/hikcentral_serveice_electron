@@ -3,36 +3,50 @@ const app = express();
 const { logService } = require("../middlewares/logging");
 
 require("./routes")(app);
-
 // set port, listen for requests
 const PORT = process.env.PORT;
 let server;
 
 function startServer() {
-  server = app.listen(PORT, () => {
-    const message = `Server ${process.env.name} is running on port ${PORT}.`;
-    logService(message);
-  });
-  server.timeout = 1000 * 60 * 30;
+  if (PORT) {
+    server = app.listen(PORT, () => {
+      const message = `Server ${process.env.name} is running on port ${PORT}.`;
+      logService(message);
+    });
+    server.timeout = 1000 * 60 * 30;
+    return true;
+  }
+  return false;
 }
 
 function stopServer() {
-  server.close(() => {
-    const message = `Server is stopped ${process.env.TOKEN}`;
-    logService(message);
-  });
+  if (PORT) {
+    if (server) {
+      server.close(() => {
+        const message = `Server is stopped ${process.env.TOKEN}`;
+        logService(message);
+      });
+      server = "";
+    }
+    return true;
+  }
+  return false;
 }
 
 async function restartServer() {
-  console.log("Server is restarted");
-  logService("Server is restarted");
-  await stopServer();
-  await startServer();
+  if (PORT) {
+    console.log("Server is restarted");
+    logService("Server is restarted");
+    await stopServer();
+    await startServer();
+    return true;
+  }
+  return false;
 }
 
 function checkServerRunning() {
   logService("Check Service Running....");
-  return server && !server.writableFinished;
+  return server && PORT && !server.writableFinished;
 }
 
 module.exports = {

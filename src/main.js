@@ -1,6 +1,12 @@
 const { app, ipcMain, dialog, BrowserWindow } = require("electron/main");
+const { alertConfirm, alertNotRunning } = require("./helper/alertDialog");
 const path = require("node:path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
+const {
+  checkSubscribeStatus,
+  subscript,
+  cancelSubscript,
+} = require("./helper/subscriptLpr");
 
 const {
   startServer,
@@ -9,26 +15,9 @@ const {
   checkServerRunning,
 } = require("./service/index");
 
-const { validateToken } = require("./helper/validateToken");
-const { setDataEnv } = require("./helper/setEnv");
 const { downloadFolder } = require("./helper/download");
 
-let tokenWindow;
 let win;
-
-function createWindowToken() {
-  tokenWindow = new BrowserWindow({
-    width: 800,
-    height: 400,
-    // resizable: false,
-    webPreferences: {
-      preload: path.join(__dirname, "./preloadToken.js"),
-    },
-  });
-
-  tokenWindow.webContents.openDevTools();
-  tokenWindow.loadFile("./html/token.html");
-}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -45,28 +34,13 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindowToken();
+  startServer();
+  createWindow();
 
-  ipcMain.handle("check-token", async (event, token) => {
-    console.log("Check token...");
-
-    const validate = await validateToken(token);
-    if (validate && validate.staus == 1) {
-      await setDataEnv("TOKEN", token);
-      tokenWindow.close();
-      startServer();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
-    } else if (validate && validate.status == 2) {
-      win.close();
-      stopServer();
-      createWindowToken();
     }
-
-    app.on("activate", () => {
-      if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
-      }
-    });
   });
 });
 
@@ -84,17 +58,25 @@ ipcMain.handle("check-server-status", async () => {
   return processStatus;
 });
 
-ipcMain.on("stop-server", () => {
+ipcMain.handle("stop-server", async () => {
   console.log("Stop server...");
-  stopServer();
+  const confirm = alertConfirm(win, "stop");
+  if (confirm == 0) {
+    return await stopServer();
+  }
+  return false;
 });
 
-ipcMain.on("restart-server", async () => {
+ipcMain.handle("restart-server", async () => {
   console.log("Restarting server...");
-  await restartServer();
+  const confirm = alertConfirm(win, "restart");
+  if (confirm == 0) {
+    return await restartServer();
+  }
+  return false;
 });
 
-ipcMain.handle("dowload-log", async (event, path) => {
+ipcMain.handle("download-log", async (event, path) => {
   console.log("Start Download Log...", path);
   const download = downloadFolder(path);
   return download;
@@ -106,4 +88,37 @@ ipcMain.handle("open-dialog", async () => {
     properties: ["openDirectory"],
   });
   return file;
+});
+
+// for lpr
+ipcMain.handle("check-subscript", async () => {
+  return await checkSubscribeStatus();
+});
+
+ipcMain.handle("subscript-lpr", async () => {
+  const confirm = alertConfirm(win, "restart");
+  if (confirm == 0) {
+    const processStatus = await subscript();
+    if (!processStatus) {
+      alertNotRunning(win);
+    } else {
+      return true;
+    }
+  }
+
+  return false;
+});
+
+ipcMain.handle("cancel-subscript-lpr", async () => {
+  const confirm = alertConfirm(win, "stop");
+  if (confirm == 0) {
+    const processStatus = await cancelSubscript();
+    if (!processStatus) {
+      alertNotRunning(win);
+    } else {
+      return true;
+    }
+  }
+
+  return false;
 });

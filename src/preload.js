@@ -12,6 +12,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       isRunning = await ipcCheckServer();
       console.log("isRunning : ", isRunning);
     } else if (type === "lpr") {
+      isRunning = await ipcCheckSubscript();
+      console.log("isRunning : ", isRunning);
     }
 
     setStatus(`${type}-status`, isRunning);
@@ -21,28 +23,60 @@ window.addEventListener("DOMContentLoaded", async () => {
   //Action Button gateway-operation
   const gatewayOperation = document.getElementById("gateway-operation");
 
-  gatewayOperation.addEventListener("click", () => {
+  gatewayOperation.addEventListener("click", async () => {
     const status = gatewayOperation.getAttribute("data-status");
     console.log("data-status : ", status);
 
     if (status === "stop") {
-      ipcStopServer();
-      setStatus("gateway-status", false);
-      setOperation("gateway-operation", false);
+      const isStop = await ipcStopServer();
+      console.log("isStop : ", isStop);
+      if (isStop) {
+        setStatus("gateway-status", false);
+        setOperation("gateway-operation", false);
+      }
     } else if (status === "restart") {
-      ipcRestartServer();
-      setStatus("gateway-status", true);
-      setOperation("gateway-operation", true);
+      const isRestart = await ipcRestartServer();
+      console.log("isRestart : ", isRestart);
+      if (isRestart) {
+        setStatus("gateway-status", true);
+        setOperation("gateway-operation", true);
+      }
     }
   });
 
-  document.getElementById("dowload-log").addEventListener("click", async () => {
-    const file = await ipcRenderer.invoke("open-dialog");
+  //Action Button lpr subscript
+  const lprOperation = document.getElementById("lpr-operation");
 
-    if (!file.canceled) {
-      await ipcRenderer.invoke("dowload-log", file.filePaths[0]);
+  lprOperation.addEventListener("click", async () => {
+    const status = lprOperation.getAttribute("data-status");
+    console.log("data-status : ", status);
+    if (status === "stop") {
+      const isCancelLpr = await ipcRenderer.invoke("cancel-subscript-lpr");
+      console.log("isCancelLpr : ", isCancelLpr);
+      if (isCancelLpr) {
+        setStatus("lpr-status", false);
+        setOperation("lpr-operation", false);
+      }
+    } else if (status === "restart") {
+      const isRestartLpr = await ipcRenderer.invoke("subscript-lpr");
+      console.log("isRestartLpr : ", isRestartLpr);
+      if (isRestartLpr) {
+        setStatus("lpr-status", true);
+        setOperation("lpr-operation", true);
+      }
     }
   });
+
+  //Action Button Download Log
+  document
+    .getElementById("download-log")
+    .addEventListener("click", async () => {
+      const file = await ipcRenderer.invoke("open-dialog");
+
+      if (!file.canceled) {
+        await ipcRenderer.invoke("download-log", file.filePaths[0]);
+      }
+    });
 });
 
 //function for update status
@@ -86,10 +120,17 @@ async function ipcCheckServer() {
   return status;
 }
 
-function ipcStopServer() {
-  ipcRenderer.send("stop-server");
+async function ipcStopServer() {
+  const status = await ipcRenderer.invoke("stop-server");
+  return status;
 }
 
-function ipcRestartServer() {
-  ipcRenderer.send("restart-server");
+async function ipcRestartServer() {
+  const status = await ipcRenderer.invoke("restart-server");
+  return status;
+}
+
+async function ipcCheckSubscript() {
+  const status = await ipcRenderer.invoke("check-subscript");
+  return status;
 }
